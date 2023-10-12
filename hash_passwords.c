@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	
 	// TODO : check for errors at opening !
 	input_file = fopen(filename, "r");
-	output_file = fopen("hashes.txt", "a");
+	output_file = fopen("hashes.txt", "w");
 
 	char line[300]; // buffer of length 300 should be enough
 	char *string;

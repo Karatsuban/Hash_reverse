@@ -1,13 +1,13 @@
-ALL : GEN.exe PARSE.exe HASH.exe
+ALL : TREE.exe HASH.exe TABLE.exe
 
-GEN.exe : projet.c
-	gcc projet.c -o GEN -lssl -lcrypto -Wall
-
-PARSE.exe : parse_hashes.c
-	gcc parse_hashes.c -o PARSE -Wall
+TREE.exe : parse_to_tree.c
+	gcc parse_to_tree.c -o TREE.exe -Wall -g
 
 HASH.exe : hash_passwords.c
-	gcc hash_passwords.c -o HASH -lssl -lcrypto -Wall
+	gcc hash_passwords.c -o HASH.exe -lssl -lcrypto -Wall
+
+TABLE.exe : parse_to_table.c
+	gcc parse_to_table.c -o TABLE.exe -Wall -g
 
 clean : 
 	rm hashes.txt *.exe

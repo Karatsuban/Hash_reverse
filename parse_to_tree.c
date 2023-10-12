@@ -90,7 +90,7 @@ void add_password(TreeHead *head, char *clear, char *hash)
 		head->nb_passwords += 1;
 		head->nb_nodes -= 1;
 	}
-	current->clear = malloc(strlen(clear));
+	current->clear = malloc(strlen(clear)+1);
 	strcpy(current->clear, clear);
 }
 
