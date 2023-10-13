@@ -16,5 +16,10 @@ with open(sys.argv[1], "r") as file:
 
 content = [int(k) for k in content]
 
+total = sum(content)
+
+print("Average count hit = ", total/len(content))
+
+
 plt.plot(content);
 plt.show()

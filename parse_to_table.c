@@ -1,16 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "linked_list.h"
 
-typedef struct HashItem
-{
-	char *hash;
-	char *clear;
-} HashItem;
+#define TRUE 1
+#define FALSE 0
 
 typedef struct HashTable
 {
-	HashItem** items;
+	list_t** items;
 	int *item_count;
 	int max;
 	int count;
@@ -39,14 +37,33 @@ int hash2_function(char *str, int max)
 	return ret%max;
 }
 
+int hash3_function(char *str, int max)
+{
+	int ret = 0;
+	for (int i=1; i<strlen(str); i+=2)
+	{
+		ret += 10*str[i-1]+str[i];
+	}
+	return ret%max;
+		
+}
 
+int hash4_function(char *str, int max)
+{
+	int ret = 0;
+	for (int i=0; i<strlen(str); i++)
+	{
+		ret += i*str[i];
+	}
+	return ret%max;
+}
 
 HashTable* new_table(int max)
 {
 	HashTable* table = malloc(sizeof(HashTable));
 	table->count = 0;
 	table->max = max;
-	table->items = malloc(max*sizeof(HashItem*));
+	table->items = malloc(max*sizeof(list_t*));
 	table->item_count = malloc(max*sizeof(int));
 	for (int i=0; i<max; i++)
 	{
@@ -57,31 +74,12 @@ HashTable* new_table(int max)
 }
 
 
-HashItem* new_item(char *hash, char *clear)
-{
-	HashItem* I = malloc(sizeof(HashItem));
-	I->hash = malloc(strlen(hash)+1);
-	I->clear = malloc(strlen(clear)+1);
-	strcpy(I->hash, hash);
-	strcpy(I->clear,clear);
-
-	return I;
-}
-
-void free_HashItem(HashItem *H)
-{
-	free(H->hash);
-	free(H->clear);
-	free(H);
-}
-
-
 void free_HashTable(HashTable *T)
 {
 	for (int i=0; i<T->max; i++)
 	{
 		if (T->items[i] != NULL)
-			free_HashItem(T->items[i]);
+			free_linked_list(T->items[i]);
 	}
 	free(T->items);
 	free(T->item_count);
@@ -91,39 +89,50 @@ void free_HashTable(HashTable *T)
 
 void add_item(HashTable* table, char* hash, char* clear)
 {
-	HashItem *item = new_item(hash, clear);
+	node_t *node = new_node(hash, clear);
 
-	int index = hash2_function(item->hash, table->max);
-
+	int index = hash4_function(node->hash, table->max);
+	
 	table->item_count[index] += 1;
+	table->count += 1;
 
 	if (table->items[index] == NULL)
 	{
-		table->items[index] = item;
-		table->count += 1;
+		table->items[index] = init_linked_list();
+		insert_tail(table->items[index], node);
 	}
 	else
 	{
-		//HashItem *old = table->items[index];
-		/*
-		printf("Collision between:\nNEW %s (%s)\nOLD %s (%s)\n\n", 
-						item->hash, item->clear, 
-						old->hash, old->clear);
-		*/
-		free_HashItem(item);
+		insert_tail(table->items[index], node);
 	}
 }
 
-
-void display_table(HashTable *table)
+int has_password(HashTable* table, char* hash, char **PTR_clear)
 {
-	HashItem *item = NULL;
-	for (int i=0; i<table->max; i++)
+	int index = hash4_function(hash, table->max);
+
+	int ret = 0;
+
+	if (table->items[index] == NULL)
 	{
-		item = table->items[i];
-		if (item != NULL)
-			printf("%i\t-> %s (%s) (%p)\n", i, item->hash, item->clear, item);
+		*PTR_clear = NULL;
+		ret = FALSE;
 	}
+	else
+	{
+		node_t *temp = find_node_by_hash(table->items[index], hash);
+		if (temp != NULL)
+		{
+			*PTR_clear = temp->clear;
+			ret = TRUE;
+		}
+		else
+		{
+			*PTR_clear = NULL;
+			ret = FALSE;
+		}
+	}
+	return ret;
 }
 
 void get_item_counts(HashTable *table, char *filename)
@@ -132,9 +141,42 @@ void get_item_counts(HashTable *table, char *filename)
 	if (output == NULL) return;
 
 	for (int i = 0; i<table->max; i++)
-		fprintf(output, "%i\n", table->item_count[i]);
+		fprintf(output, "%i %i\n", table->item_count[i], table->items[i]->size);
 	fclose(output);
 }
+
+
+
+void prompt(HashTable *table)
+{
+    int isOver = FALSE;
+    char hash[100];
+    char* PTR_clear = NULL;
+    int ret_val;
+
+    while (!isOver)
+    {
+        printf("Enter a hash: ");
+        scanf("%s", hash);
+        //printf("entered hash is %s\n", hash);
+
+        if (strcmp(hash, "exit") == 0)
+        {
+            isOver = TRUE;
+        }
+        else
+        {
+
+                ret_val = has_password(table, hash, &PTR_clear);
+
+                if (ret_val == TRUE)
+                        printf("Password found! Clear password is '%s'\n", PTR_clear);
+                else
+                        printf("Sorry not found!\n");
+        }
+    }
+}
+
 
 
 int main(int argc, char* argv[])
@@ -150,7 +192,7 @@ int main(int argc, char* argv[])
 	char clear[50];
 	char *string = NULL;
 
-	HashTable *table = new_table(50000);
+	HashTable *table = new_table(20000);
 
 	input_file = fopen(argv[1], "r");
 	if (input_file == NULL)
@@ -172,18 +214,27 @@ int main(int argc, char* argv[])
 		
 		add_item(table, hash, clear);
 
-        if (i++ % 10000 == 0)
-            printf("%i\n", i);
+		if (i%10000 == 0)
+			printf("%i\n", i);
+		i++;
+
     }
     
 	//display_table(table);
 
+
 	if (argc >= 3)
 		get_item_counts(table, argv[2]);
 
-	fclose(input_file);
+	prompt(table);
 
+	//char *user_input = NULL;
+	//scanf("%s", user_input);
+	
+
+	fclose(input_file);
 	free_HashTable(table);
+
 
 	return 0;
 }
