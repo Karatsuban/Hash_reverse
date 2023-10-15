@@ -29,7 +29,5 @@ void insert_head(list_t *L, node_t *N);
 node_t* find_node_by_hash(list_t*, char*);
 int read_at(list_t *L, int N);
 node_t* delete_at(list_t *L, int N);
-int size_of(list_t *L);
-void display(list_t *L);
 
 #endif

@@ -15,46 +15,27 @@ typedef struct HashTable
 } HashTable;
 
 
-int hash1_function(char *str, int max)
-{
-	int ret = 0;
-	for (int i = 0; i<strlen(str); i++)
-		ret += str[i];
-	return ret%max;
-}
-
-
-int hash2_function(char *str, int max)
-{
-	int ret = 0;
-	for (int i = 0; i<strlen(str); i++)
-	{
-		if (i<strlen(str)/2)
-			ret += str[i];
-		else
-			ret += 10*str[i];
-	}
-	return ret%max;
-}
-
-int hash3_function(char *str, int max)
-{
-	int ret = 0;
-	for (int i=1; i<strlen(str); i+=2)
-	{
-		ret += 10*str[i-1]+str[i];
-	}
-	return ret%max;
-		
-}
-
 int hash4_function(char *str, int max)
 {
 	int ret = 0;
 	for (int i=0; i<strlen(str); i++)
 	{
-		ret += i*str[i];
+		ret +=  i*str[i];
 	}
+	
+	return ret%max;
+}
+
+
+
+int hash5_function(char *str, int max)
+{
+	int ret = 0;
+	for (int i=0; i<strlen(str); i++)
+	{
+		ret += i*i*str[i];
+	}
+	
 	return ret%max;
 }
 
@@ -91,7 +72,14 @@ void add_item(HashTable* table, char* hash, char* clear)
 {
 	node_t *node = new_node(hash, clear);
 
-	int index = hash4_function(node->hash, table->max);
+	int index = hash5_function(node->hash, table->max);
+
+	if (index < 0)
+	{
+		//printf("Dropping malformed string %s (index %i)\n", hash, index);
+		return;
+	}
+
 	
 	table->item_count[index] += 1;
 	table->count += 1;
@@ -107,15 +95,15 @@ void add_item(HashTable* table, char* hash, char* clear)
 	}
 }
 
-int has_password(HashTable* table, char* hash, char **PTR_clear)
+int has_password(HashTable* table, char* hash, char *PTR_clear)
 {
-	int index = hash4_function(hash, table->max);
+	int index = hash5_function(hash, table->max);
 
 	int ret = 0;
 
 	if (table->items[index] == NULL)
 	{
-		*PTR_clear = NULL;
+		PTR_clear = NULL;
 		ret = FALSE;
 	}
 	else
@@ -123,12 +111,12 @@ int has_password(HashTable* table, char* hash, char **PTR_clear)
 		node_t *temp = find_node_by_hash(table->items[index], hash);
 		if (temp != NULL)
 		{
-			*PTR_clear = temp->clear;
+			PTR_clear = temp->clear;
 			ret = TRUE;
 		}
 		else
 		{
-			*PTR_clear = NULL;
+			PTR_clear = NULL;
 			ret = FALSE;
 		}
 	}
@@ -141,7 +129,7 @@ void get_item_counts(HashTable *table, char *filename)
 	if (output == NULL) return;
 
 	for (int i = 0; i<table->max; i++)
-		fprintf(output, "%i %i\n", table->item_count[i], table->items[i]->size);
+		fprintf(output, "%i\n", table->item_count[i]);
 	fclose(output);
 }
 
@@ -151,7 +139,7 @@ void prompt(HashTable *table)
 {
     int isOver = FALSE;
     char hash[100];
-    char* PTR_clear = NULL;
+    char *PTR_clear;
     int ret_val;
 
     while (!isOver)
@@ -164,16 +152,17 @@ void prompt(HashTable *table)
         {
             isOver = TRUE;
         }
+		/*
         else
         {
 
-                ret_val = has_password(table, hash, &PTR_clear);
+			ret_val = has_password(table, hash, PTR_clear);
 
-                if (ret_val == TRUE)
-                        printf("Password found! Clear password is '%s'\n", PTR_clear);
-                else
-                        printf("Sorry not found!\n");
-        }
+			if (ret_val == TRUE)
+                printf("Password found! Clear password is '%s'\n", PTR_clear);
+            else
+                printf("Sorry not found!\n");
+        }*/
     }
 }
 
@@ -190,9 +179,7 @@ int main(int argc, char* argv[])
 	FILE *input_file;
 	char hash[70];
 	char clear[50];
-	char *string = NULL;
 
-	HashTable *table = new_table(20000);
 
 	input_file = fopen(argv[1], "r");
 	if (input_file == NULL)
@@ -201,36 +188,49 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+
+	fseek(input_file, 0, SEEK_END); // seek to end of file
+	int size = ftell(input_file); 
+	fseek(input_file, 0, SEEK_SET); // seek back to beginning of file
+
+
+	int ht_size = size/(36*500); // totally arbitrary way to get the size
+	// well, 36 is the average of value per line, so size/36 is roughly the number of lines
+
+	//printf("size = %i, ht_size = %i\n", size, ht_size);
+
+	printf("Creating table with %i elements\n", ht_size);	
+	HashTable *table = new_table(ht_size);
+	
 	int i = 0;
 
-	while (1)
+	int isOver = FALSE;
+	while (!isOver)
 	{
-		string = fgets(clear, 50, input_file);
-		if (string == NULL)
-			break;
-        clear[strlen(clear)-1] = '\0'; // remove the \n
-        fgets(hash, 70, input_file); // get the hash
-        hash[strlen(hash)-1] = '\0'; // remove the \n
-		
-		add_item(table, hash, clear);
-
-		if (i%10000 == 0)
-			printf("%i\n", i);
-		i++;
+		if ( fscanf(input_file, "%s %s", clear, hash) != 2)
+		{
+			isOver = TRUE;
+		}
+		else
+		{
+			add_item(table, hash, clear);
+	
+			if (i%1000000 == 0)
+				printf("%i\n", i);
+			i++;
+		}
 
     }
     
 	//display_table(table);
 
-
+	/*
 	if (argc >= 3)
 		get_item_counts(table, argv[2]);
+	*/
 
-	prompt(table);
+	//prompt(table);
 
-	//char *user_input = NULL;
-	//scanf("%s", user_input);
-	
 
 	fclose(input_file);
 	free_HashTable(table);

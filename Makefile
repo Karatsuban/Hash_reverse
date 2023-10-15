@@ -10,4 +10,4 @@ TABLE.exe : parse_to_table.c
 	gcc parse_to_table.c linked_list.c -o TABLE.exe -Wall -g
 
 clean : 
-	rm hashes.txt *.exe
+	rm *.exe

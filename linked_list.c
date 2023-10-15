@@ -51,9 +51,9 @@ void free_linked_list(list_t *L)
 	node_t *temp = NULL;
 	while (current != NULL)
 	{
-		temp = current;
+		temp = current->next;
 		free_node(current);
-		current = temp->next;
+		current = temp;
 	}
 	free(L);
 }
@@ -121,21 +121,5 @@ node_t* delete_at(list_t *L, int N)
 
 	L->size -= 1;
 	return ret;
-}
-
-int size_of(list_t *L)
-{
-	if (L->head == NULL) return 0;
-	node_t *current = L->head;
-	int size = 0;
-	while (current->next != NULL)
-	{
-		current = current->next;
-		size += 1;
-	}
-	if (size != L->size)
-		printf("Error when checking size!\n");
-
-	return 1;
 }
 

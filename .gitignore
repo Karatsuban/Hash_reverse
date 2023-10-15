@@ -4,6 +4,9 @@
 # Text files
 *.txt
 
+# Bash files
+*.sh
+
 # Object files
 *.o
 *.ko

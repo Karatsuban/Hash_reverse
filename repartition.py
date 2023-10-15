@@ -4,22 +4,32 @@ import os
 
 
 if len(sys.argv) == 1:
-	print("Filename expected!")
+	print("At least one filename expected!")
 	sys.exit(1)
 
-if not os.path.isfile(sys.argv[1]):
-	print("File does not exist!")
-	sys.exit(1)
 
-with open(sys.argv[1], "r") as file:
-	content = file.readlines()
+for filename in sys.argv[1:]:
 
-content = [int(k) for k in content]
+	print("opening ", filename)
 
-total = sum(content)
+	if not os.path.isfile(filename):
+		print("File does not exist!")
+	else:
 
-print("Average count hit = ", total/len(content))
+		content = []
+		with open(filename, "r") as file:
+			content = file.readlines()
+	
+		content = [int(k) for k in content]
+	
+		total = sum(content)
+	
+		print("Average count hit = ", total/len(content))
+	
+		plt.figure(num=filename)
+		plt.plot(content);
+		alt_name = filename.replace("txt", "png")
+		plt.savefig(alt_name)
 
 
-plt.plot(content);
-plt.show()
+#plt.show()

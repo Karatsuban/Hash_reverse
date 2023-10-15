@@ -4,6 +4,8 @@
 #include <openssl/evp.h> 
 #include <unistd.h>
 
+#define TRUE 1
+#define FALSE 0
 
 int main(int argc, char* argv[])
 {
@@ -28,20 +30,25 @@ int main(int argc, char* argv[])
 	output_file = fopen("hashes.txt", "w");
 
 	char line[300]; // buffer of length 300 should be enough
-	char *string;
 
-	while (1)
+	int isOver = FALSE;
+
+	while (!isOver)
 	{
-		string = fgets(line, 300, input_file);
-		if (string == NULL) // end of file reached
-			break;
-		fprintf(output_file, "%s", line); // write the clear password to file
-		EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line)-1, md_buf, &mdlen);
-		for (int i=0; i<32; i++)
+		if (fscanf(input_file, "%s", line) != 1)
 		{
-			fprintf(output_file, "%x", md_buf[i]); // write the hash to file
+			isOver = TRUE;
 		}
-		fputc('\n', output_file);
+		else
+		{
+			fprintf(output_file, "%s ", line); // write the clear password to file
+			EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line)-1, md_buf, &mdlen);
+			for (int i=0; i<32; i++)
+			{
+				fprintf(output_file, "%x", md_buf[i]); // write the hash to file
+			}
+			fputc('\n', output_file);
+		}
 
 	}
 
