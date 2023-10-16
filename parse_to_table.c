@@ -15,19 +15,6 @@ typedef struct HashTable
 } HashTable;
 
 
-int hash4_function(char *str, int max)
-{
-	int ret = 0;
-	for (int i=0; i<strlen(str); i++)
-	{
-		ret +=  i*str[i];
-	}
-	
-	return ret%max;
-}
-
-
-
 int hash5_function(char *str, int max)
 {
 	int ret = 0;
@@ -45,11 +32,9 @@ HashTable* new_table(int max)
 	table->count = 0;
 	table->max = max;
 	table->items = malloc(max*sizeof(list_t*));
-	table->item_count = malloc(max*sizeof(int));
 	for (int i=0; i<max; i++)
 	{
 		table->items[i] = NULL;
-		table->item_count[i] = 0;
 	}
 	return table;
 }
@@ -63,7 +48,6 @@ void free_HashTable(HashTable *T)
 			free_linked_list(T->items[i]);
 	}
 	free(T->items);
-	free(T->item_count);
 	free(T);
 }
 
@@ -81,7 +65,6 @@ void add_item(HashTable* table, char* hash, char* clear)
 	}
 
 	
-	table->item_count[index] += 1;
 	table->count += 1;
 
 	if (table->items[index] == NULL)
@@ -95,7 +78,7 @@ void add_item(HashTable* table, char* hash, char* clear)
 	}
 }
 
-int has_password(HashTable* table, char* hash, char *PTR_clear)
+int has_password(HashTable* table, char* hash, char **PTR_clear)
 {
 	int index = hash5_function(hash, table->max);
 
@@ -103,7 +86,7 @@ int has_password(HashTable* table, char* hash, char *PTR_clear)
 
 	if (table->items[index] == NULL)
 	{
-		PTR_clear = NULL;
+		*PTR_clear = NULL;
 		ret = FALSE;
 	}
 	else
@@ -111,58 +94,46 @@ int has_password(HashTable* table, char* hash, char *PTR_clear)
 		node_t *temp = find_node_by_hash(table->items[index], hash);
 		if (temp != NULL)
 		{
-			PTR_clear = temp->clear;
+			*PTR_clear = temp->clear;
 			ret = TRUE;
 		}
 		else
 		{
-			PTR_clear = NULL;
+			*PTR_clear = NULL;
 			ret = FALSE;
 		}
 	}
 	return ret;
 }
 
-void get_item_counts(HashTable *table, char *filename)
-{
-	FILE *output = fopen(filename, "w");
-	if (output == NULL) return;
-
-	for (int i = 0; i<table->max; i++)
-		fprintf(output, "%i\n", table->item_count[i]);
-	fclose(output);
-}
-
-
 
 void prompt(HashTable *table)
 {
     int isOver = FALSE;
     char hash[100];
-    char *PTR_clear;
+    char *PTR_clear = NULL;
     int ret_val;
 
     while (!isOver)
     {
         printf("Enter a hash: ");
         scanf("%s", hash);
-        //printf("entered hash is %s\n", hash);
 
-        if (strcmp(hash, "exit") == 0)
+        if (!strcmp(hash, "exit"))
         {
             isOver = TRUE;
         }
-		/*
+		
         else
         {
 
-			ret_val = has_password(table, hash, PTR_clear);
+			ret_val = has_password(table, hash, &PTR_clear);
 
 			if (ret_val == TRUE)
-                printf("Password found! Clear password is '%s'\n", PTR_clear);
+                printf("Password found! Clear password is '%s' %p\n", PTR_clear, PTR_clear);
             else
                 printf("Sorry not found!\n");
-        }*/
+        }
     }
 }
 
@@ -178,7 +149,7 @@ int main(int argc, char* argv[])
 
 	FILE *input_file;
 	char hash[70];
-	char clear[50];
+	char clear[300];
 
 
 	input_file = fopen(argv[1], "r");
@@ -207,17 +178,24 @@ int main(int argc, char* argv[])
 	int isOver = FALSE;
 	while (!isOver)
 	{
-		if ( fscanf(input_file, "%s %s", clear, hash) != 2)
+		if ( fscanf(input_file, "%s %s", hash, clear) != 2)
 		{
 			isOver = TRUE;
 		}
 		else
 		{
-			add_item(table, hash, clear);
-	
+			//printf("%li %s\n", strlen(clear), clear);
+			if (strlen(clear) < 50)
+			{
+				add_item(table, hash, clear);
+			}
+
+
+			
 			if (i%1000000 == 0)
 				printf("%i\n", i);
 			i++;
+			
 		}
 
     }
@@ -229,7 +207,7 @@ int main(int argc, char* argv[])
 		get_item_counts(table, argv[2]);
 	*/
 
-	//prompt(table);
+	prompt(table);
 
 
 	fclose(input_file);

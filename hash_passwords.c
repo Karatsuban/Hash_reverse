@@ -41,13 +41,16 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			fprintf(output_file, "%s ", line); // write the clear password to file
-			EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line)-1, md_buf, &mdlen);
-			for (int i=0; i<32; i++)
+			if (strlen(line) < 100)
 			{
-				fprintf(output_file, "%x", md_buf[i]); // write the hash to file
+				EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line)-1, md_buf, &mdlen);
+				for (int i=0; i<32; i++)
+				{
+					fprintf(output_file, "%x", md_buf[i]); // write the hash to file
+				}
+				fprintf(output_file, " %s ", line); // write the clear password to file
+				fputc('\n', output_file);
 			}
-			fputc('\n', output_file);
 		}
 
 	}
