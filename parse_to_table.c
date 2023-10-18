@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 	}
 
 	FILE *input_file;
-	char hash[70];
+	char hash[65];
 	char clear[300];
 
 
@@ -181,13 +181,15 @@ int main(int argc, char* argv[])
 	int isOver = FALSE;
 	while (!isOver)
 	{
-		if ( fscanf(input_file, "%s %s", hash, clear) != 2)
+		//if ( fscanf(input_file, "%s %s", hash, clear) != 2)
+		if ( fgets(hash, 65, input_file) == NULL)
 		{
 			isOver = TRUE;
 		}
 		else
 		{
-			//printf("%li %s\n", strlen(clear), clear);
+			fgets(clear, 300, input_file);
+			printf("hash = %s, clear = %s\n", hash, clear);
 			if (strlen(clear) < 50)
 			{
 				add_item(table, hash, clear);

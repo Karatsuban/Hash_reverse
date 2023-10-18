@@ -29,29 +29,32 @@ int main(int argc, char* argv[])
 	input_file = fopen(filename, "r");
 	output_file = fopen("hashes.txt", "w");
 
-	char line[300]; // buffer of length 300 should be enough
+	char line[128]; // buffer of length 128 should be enough to store a plain text password
 
 	int isOver = FALSE;
 
 	while (!isOver)
 	{
-		if (fscanf(input_file, "%s", line) != 1)
+		if (fgets(line, 128, input_file) == NULL)
 		{
 			isOver = TRUE;
 		}
 		else
 		{
+			line[strlen(line)-1] = '\0'; // removing the '\n' character
+
 			if (strlen(line) < 100)
 			{
 				EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line), md_buf, &mdlen);
 				for (int i=0; i<32; i++)
 				{
-					fprintf(output_file, "%x", md_buf[i]); // write the hash to file
+					fprintf(output_file, "%02x", md_buf[i]); // write the hash to file
 				}
 				fprintf(output_file, " %s ", line); // write the clear password to file
-				printf("mdp is #%s#, hash is #%s#\n", md_buf, line);
+				printf("clear is #%s#", line);
 				fputc('\n', output_file);
 			}
+			printf("\n");
 		}
 
 	}
