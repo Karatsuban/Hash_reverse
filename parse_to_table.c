@@ -168,6 +168,9 @@ int main(int argc, char* argv[])
 	int ht_size = size/(36*500); // totally arbitrary way to get the size
 	// well, 36 is the average of value per line, so size/36 is roughly the number of lines
 
+	if (ht_size < 10)
+		ht_size = 10; // default size for the table
+
 	//printf("size = %i, ht_size = %i\n", size, ht_size);
 
 	printf("Creating table with %i elements\n", ht_size);	

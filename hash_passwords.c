@@ -43,12 +43,13 @@ int main(int argc, char* argv[])
 		{
 			if (strlen(line) < 100)
 			{
-				EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line)-1, md_buf, &mdlen);
+				EVP_Q_digest(NULL, "SHA256", NULL, line, strlen(line), md_buf, &mdlen);
 				for (int i=0; i<32; i++)
 				{
 					fprintf(output_file, "%x", md_buf[i]); // write the hash to file
 				}
 				fprintf(output_file, " %s ", line); // write the clear password to file
+				printf("mdp is #%s#, hash is #%s#\n", md_buf, line);
 				fputc('\n', output_file);
 			}
 		}
