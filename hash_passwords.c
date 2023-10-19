@@ -50,11 +50,9 @@ int main(int argc, char* argv[])
 				{
 					fprintf(output_file, "%02x", md_buf[i]); // write the hash to file
 				}
-				fprintf(output_file, " %s ", line); // write the clear password to file
-				printf("clear is #%s#", line);
+				fprintf(output_file, " %s", line); // write the clear password to file
 				fputc('\n', output_file);
 			}
-			printf("\n");
 		}
 
 	}

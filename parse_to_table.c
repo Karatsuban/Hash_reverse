@@ -130,7 +130,7 @@ void prompt(HashTable *table)
 			ret_val = has_password(table, hash, &PTR_clear);
 
 			if (ret_val == TRUE)
-                printf("Password found! Clear password is '%s' %p\n", PTR_clear, PTR_clear);
+                printf("Password found! Clear password is '%s'\n", PTR_clear);
             else
                 printf("Sorry not found!\n");
         }
@@ -181,17 +181,19 @@ int main(int argc, char* argv[])
 	int isOver = FALSE;
 	while (!isOver)
 	{
-		//if ( fscanf(input_file, "%s %s", hash, clear) != 2)
 		if ( fgets(hash, 65, input_file) == NULL)
 		{
 			isOver = TRUE;
 		}
 		else
 		{
+			fgetc(input_file); // read only one char (separator)
 			fgets(clear, 300, input_file);
-			printf("hash = %s, clear = %s\n", hash, clear);
+			clear[strlen(clear)-1] = '\0'; // remove the end
+			// remove the /n at the end of clear
 			if (strlen(clear) < 50)
 			{
+				//printf("Clear is #%s#\n", clear);
 				add_item(table, hash, clear);
 			}
 
