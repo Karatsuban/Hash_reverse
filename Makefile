@@ -1,7 +1,4 @@
-ALL : TREE.exe HASH.exe TABLE.exe
-
-TREE.exe : parse_to_tree.c
-	gcc parse_to_tree.c -o TREE.exe -Wall -g
+ALL : HASH.exe TABLE.exe
 
 HASH.exe : hash_passwords.c
 	gcc hash_passwords.c -o HASH.exe -lssl -lcrypto -Wall

@@ -2,3 +2,4 @@ TODO
 
 -add a way to store the hash algorithm used in the hashing phase
 -add a way to store the length of a hashed password in bytes (at the beginning of the hashes.txt file, preferably)
+-Add progress bar when hashing password files or loading hash-passwd files
