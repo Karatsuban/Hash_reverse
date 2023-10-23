@@ -3,39 +3,33 @@
 #include <stdlib.h>
 #include <openssl/evp.h> 
 #include <unistd.h>
+#include "hash_passwords.h"
 
+#ifndef BOOLEAN
+#define BOOLEAN
 #define TRUE 1
 #define FALSE 0
+#endif
 
-int main(int argc, char* argv[])
+int generate(char *filename)
 {
-	char* filename = NULL;
 
-	if (argc == 1)
-	{
-		printf("Use at least one argument : the path to a txt file!\n");
-		exit(1);
-	}
-
-	filename = argv[1];
-
-	FILE *input_file = NULL;
 	FILE *output_file = NULL;
 
 	size_t mdlen;
 	unsigned char* md_buf = malloc(32); // 256 bits
 	
 	// TODO : check for errors at opening !
-	input_file = fopen(filename, "r");
-	output_file = fopen("hashes.txt", "w");
+	output_file = fopen(filename, "w");
 
 	char line[128]; // buffer of length 128 should be enough to store a plain text password
 
 	int isOver = FALSE;
+	int nb = 0;
 
 	while (!isOver)
 	{
-		if (fgets(line, 128, input_file) == NULL)
+		if (fgets(line, 128, stdin) == NULL)
 		{
 			isOver = TRUE;
 		}
@@ -53,12 +47,19 @@ int main(int argc, char* argv[])
 				fprintf(output_file, " %s", line); // write the clear password to file
 				fputc('\n', output_file);
 			}
+
+			nb += 1;
+			if (nb % 1000000 == 0)
+			{
+				printf("DONE %i hashes\n", nb);
+			}
 		}
 
 	}
 
-	fclose(input_file);
 	fclose(output_file);
+	printf("DONE %i hashes\n", nb);
+	printf("Correspondance table written in file '%s'\n", filename);
 
 	return 0;
 }

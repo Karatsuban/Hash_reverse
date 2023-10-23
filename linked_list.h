@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifndef LINKED_LIST
-#define LINKED_LIST
+#define LINKED_LIST 1
 
 
 typedef struct Node
