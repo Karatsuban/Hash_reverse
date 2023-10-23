@@ -63,7 +63,7 @@ void add_item(HashTable* table, char* hash, char* clear)
 
 	if (index < 0)
 	{
-		//printf("Dropping malformed string %s (index %i)\n", hash, index);
+		printf("Dropping malformed string %s (index %i)\n", hash, index);
 		return;
 	}
 
@@ -110,30 +110,29 @@ int has_password(HashTable* table, char* hash, char **PTR_clear)
 }
 
 
-void prompt(HashTable *table)
+void prompt(HashTable *table, int hashSize)
 {
     int isOver = FALSE;
-    char hash[100];
+    char* hash = malloc(hashSize+1);
     char *PTR_clear = NULL;
     int ret_val;
 
 
     while (!isOver)
     {
-
-        if ( scanf("%s", hash) == EOF)
+        if (scanf("%s", hash) == EOF)
         {
             isOver = TRUE;
         }
         else
         {
-
 			ret_val = has_password(table, hash, &PTR_clear);
 
 			if (ret_val == TRUE)
                 printf("MATCH %s %s\n", hash, PTR_clear);
         }
     }
+	free(hash);
 }
 
 
@@ -142,9 +141,11 @@ int lookup(char* filename)
 {
 
 	FILE *input_file;
-	char hash[65];
-	char clear[300];
+	char *hash = NULL;
+	char clear[2048];
 
+	char* hashAlgoName = malloc(100); // will contain the name of the hash algorithm used
+	int hashLen = 0; // will contain the lenght of a hash produced with the chosen algo (in bytes)
 
 	input_file = fopen(filename, "r");
 	if (input_file == NULL)
@@ -153,10 +154,13 @@ int lookup(char* filename)
 		return -1;
 	}
 
-
 	fseek(input_file, 0, SEEK_END); // seek to end of file
 	int size = ftell(input_file); 
 	fseek(input_file, 0, SEEK_SET); // seek back to beginning of file
+	
+
+	fscanf(input_file, "%s %i\n", hashAlgoName, &hashLen);
+	hash = malloc(hashLen+1); // set a buffer of the correct size
 
 
 	int ht_size = size/(36*500); // totally arbitrary way to get the size
@@ -165,7 +169,6 @@ int lookup(char* filename)
 	if (ht_size < 10)
 		ht_size = 10; // default size for the table
 
-	//printf("size = %i, ht_size = %i\n", size, ht_size);
 
 	fprintf(stderr, "Creating table with %i elements\n", ht_size);	
 	HashTable *table = new_table(ht_size);
@@ -175,21 +178,17 @@ int lookup(char* filename)
 	int isOver = FALSE;
 	while (!isOver)
 	{
-		if ( fgets(hash, 65, input_file) == NULL)
+		if ( fgets(hash, hashLen+1, input_file) == NULL)
 		{
 			isOver = TRUE;
 		}
 		else
 		{
 			fgetc(input_file); // read only one char (separator)
-			fgets(clear, 300, input_file);
+			fgets(clear, 2048, input_file);
 			clear[strlen(clear)-1] = '\0'; // remove the end
 			// remove the /n at the end of clear
-			if (strlen(clear) < 50)
-			{
-				//printf("Clear is #%s#\n", clear);
-				add_item(table, hash, clear);
-			}
+			add_item(table, hash, clear);
 
 			i++;
 			if (i%1000000 == 0)
@@ -201,10 +200,12 @@ int lookup(char* filename)
 
 	fprintf(stderr, "STORED %i nodes\n", i);
 
-	prompt(table);
+	prompt(table, hashLen);
 
 	fprintf(stderr, "Freeing table, please wait\n");
 
+	free(hash);
+	free(hashAlgoName);
 	fclose(input_file);
 	free_HashTable(table);
 
