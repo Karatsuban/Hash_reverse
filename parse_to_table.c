@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "linked_list.h"
 
 #ifndef BOOLEAN
@@ -110,6 +111,16 @@ int has_password(HashTable* table, char* hash, char **PTR_clear)
 }
 
 
+void upper(char *str)
+{
+	char *a = str;
+	while (*a)
+	{
+		*a = toupper(*a);
+		a++;
+	}
+}
+
 void prompt(HashTable *table, int hashSize)
 {
     int isOver = FALSE;
@@ -126,6 +137,7 @@ void prompt(HashTable *table, int hashSize)
         }
         else
         {
+			upper(hash); // change to upper
 			ret_val = has_password(table, hash, &PTR_clear);
 
 			if (ret_val == TRUE)
