@@ -20,6 +20,7 @@ typedef struct LinkedList
 
 list_t* init_linked_list()
 {
+	// init a linked list object and its elements and returns it
 	list_t *L = malloc(sizeof(list_t));
 	L->head = NULL;
 	L->tail = NULL;
@@ -29,9 +30,12 @@ list_t* init_linked_list()
 
 node_t* new_node(char *hash, char *clear)
 {
+	// creates a new node and its elements and returns it
     node_t* N = malloc(sizeof(node_t));
+	// allocating space to contain hash and clear
     N->hash = malloc(strlen(hash)+1);
     N->clear = malloc(strlen(clear)+1);
+	// copy the hash and clear into the node's elements
     strcpy(N->hash, hash);
     strcpy(N->clear,clear);
 
@@ -40,6 +44,7 @@ node_t* new_node(char *hash, char *clear)
 
 void free_node(node_t *N)
 {
+	// free the content of a node and the node itself
 	free(N->hash);
 	free(N->clear);
 	free(N);
@@ -47,21 +52,24 @@ void free_node(node_t *N)
 
 void free_linked_list(list_t *L)
 {
+	// free the contents of a linked list and the linked list itself
 	node_t *current = L->head;
 	node_t *temp = NULL;
 	while (current != NULL)
 	{
+		// free each node
 		temp = current->next;
 		free_node(current);
 		current = temp;
 	}
-	free(L);
+	free(L); // free the list itself
 }
 
 
 
 void insert_tail(list_t *L, node_t *N)
 {
+	// insert a node as the tail of a linked list
 	if (L->size ==0) // list is empty
 		L->head = N; // N is also head
 	else
@@ -71,55 +79,23 @@ void insert_tail(list_t *L, node_t *N)
 	L->size += 1; // update size
 }
 
-void insert_head(list_t *L, node_t *N)
-{
-	if (L->size == 0) // list is empty
-		L->tail = N; // N is also tail
-	N->next = L->head;
-	L->head = N; // assign the head
-	L->size += 1; // update size
-}
-
 
 node_t* find_node_by_hash(list_t *L, char *hash)
 {
+	// returns the first node containing the given hash in the linked lis
+	// else returns NULL
 	node_t *current = L->head;
 
 	while (current != NULL)
 	{
 		if (strcmp(current->hash, hash) == 0)
 		{
-			return current;
+			// if there is a match
+			return current; // return the node
 		}
 		current = current->next;
 	}
-	return NULL;
+	return NULL; // no matching node was found
 }
 
-
-node_t* delete_at(list_t *L, int N)
-{
-	if (N >= L->size)
-		return NULL; // reading outside of list
-
-	node_t *current = L->head;
-	node_t *ret = NULL; // returned node_t
-
-	if (N == 0)
-	{
-		ret = L->head;
-		L->head = L->head->next;
-	}
-	else
-	{
-		for (int i=0; i<N-1; i++)
-			current = current->next;
-	
-		ret = current->next;
-		current->next = ret->next;
-	}
-
-	L->size -= 1;
-	return ret;
-}
 
