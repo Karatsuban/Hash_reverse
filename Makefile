@@ -1,9 +1,9 @@
 ALL : MAIN.exe
 
 
-MAIN.exe : reverse.c parse_to_table.c hash_passwords.c
-	gcc reverse.c parse_to_table.c linked_list.c hash_passwords.c -lssl -lcrypto -Wall -g -o MAIN.exe
+MAIN.exe : src/reverse.c src/parse_to_table.c src/hash_passwords.c src/linked_list.c
+	gcc src/reverse.c src/parse_to_table.c src/linked_list.c src/hash_passwords.c -lssl -lcrypto -Wall -g -o MAIN.exe
 
 
 clean : 
-	rm *.exe
+	rm MAIN.exe
