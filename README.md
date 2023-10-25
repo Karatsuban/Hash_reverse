@@ -4,10 +4,24 @@ Get plain text password from stored hashes
 
 ## Usage
 
+There are two ways of using this program.  
+One way (local use) is compile and execute the code in the current folder (jump to Compilation).  
+The other way is to launch a docker and compile/execute the code in it.  
+If you're not use which one to use, the docker way is recommended.  
+
+
+### Docker use
+
+Build the docker with the command `$ sudo docker build . -t reverse`  
+Run the docker with the command `$ sudo docker run --rm -ti -v .:/home reverse`  
+You'll be met with an interactive command line inside the docker.
+
+
 ### Compilation
 
 To compile the code, simply type `$ make`.  
 During compilation, one executable will be made: MAIN.exe.  
+
 
 ### Hashing password
 
