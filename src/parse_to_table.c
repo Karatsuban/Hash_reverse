@@ -138,7 +138,8 @@ void prompt(HashTable *table, int hashSize)
     char* hash = malloc(hashSize+1);
     char *PTR_clear = NULL;
     int ret_val;
-
+	int matched= 0;
+	int total = 0;
 
     while (!isOver)
     {
@@ -148,13 +149,22 @@ void prompt(HashTable *table, int hashSize)
         }
         else
         {
+			total += 1;
 			upper(hash); // change to upper case
 			ret_val = has_password(table, hash, &PTR_clear); // lookup the hash
 
 			if (ret_val == TRUE)
+			{
                 printf("MATCH %s %s\n", hash, PTR_clear); // a corresponding clear password was found
+				matched += 1;
+			}
+			else
+			{
+				fprintf(stderr, "not match %s\n", hash);
+			}
         }
     }
+	printf("Matched %i/%i\n", matched, total);
 	free(hash);
 }
 
@@ -194,9 +204,9 @@ int lookup(char* filename)
 	hash = malloc(hashLen+1); // set a buffer of the correct size for the hashes
 
 
-	int ht_size = size/((hashLen+10)*500); // set the table size
+	int ht_size = size/((hashLen+10)*50); // set the table size
 	// (hashLen+10) is a rough average of the number of characters per line
-	// we create the table so that is stores more or less 500 nodes in each index
+	// we create the table so that is stores more or less 50 nodes in each index
 
 	// min size for the table
 	if (ht_size < 10)
@@ -224,7 +234,7 @@ int lookup(char* filename)
 
 			i++;
 			if (i%1000000 == 0)
-				fprintf(stderr, "STORED %i nodes\n", i);
+				fprintf(stderr, "STORED %i nodes %s %s\n", i, clear, hash);
 			
 		}
 

@@ -44,7 +44,7 @@ int generate(char *filename, char* hashAlgoName)
 		return 1;
 	}
 
-	fprintf(output_file, "%s:%li\n", hashAlgoName, mdlen*2); // write the algorithm used and the lenght of the hash produced
+	fprintf(output_file, "%s %li\n", hashAlgoName, mdlen*2); // write the algorithm used and the lenght of the hash produced
 
 	char line[2048]; // buffer of length 2048 should be enough to store a plain text password
 
