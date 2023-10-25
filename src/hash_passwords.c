@@ -62,9 +62,6 @@ int generate(char *filename, char* hashAlgoName)
 			fprintf(output_file, " %s\n", line); // write the clear password to file
 
 
-			if (strlen(line) > 50)
-				printf("%i %s\n", nb, line);
-
 			nb += 1;
 			if (nb % 1000000 == 0)
 			{
