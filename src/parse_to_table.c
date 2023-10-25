@@ -24,7 +24,7 @@ int hash_function(char *str, int max)
 	int ret = 0;
 	for (int i=0; i<strlen(str); i++)
 	{
-		ret += i*i*str[i];
+		ret += i*i*str[i]*str[i];
 	}
 	
 	return ret%max; // number will be in [0,max[
@@ -234,7 +234,7 @@ int lookup(char* filename)
 
 			i++;
 			if (i%1000000 == 0)
-				fprintf(stderr, "STORED %i nodes %s %s\n", i, clear, hash);
+				fprintf(stderr, "STORED %i nodes\n", i);
 			
 		}
 
@@ -242,7 +242,7 @@ int lookup(char* filename)
 
 	fprintf(stderr, "STORED %i nodes\n", i);
 
-	prompt(table, hashLen); // try to lookup the given hashes
+	//prompt(table, hashLen); // try to lookup the given hashes
 
 	fprintf(stderr, "Freeing table, please wait\n");
 
