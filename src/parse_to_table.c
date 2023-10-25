@@ -163,7 +163,7 @@ int lookup(char* filename)
 	if (input_file == NULL)
 	{
 		fprintf(stderr, "The file '%s' does not exist!\n", filename);
-		return -1;
+		return 1;
 	}
 
 	fseek(input_file, 0, SEEK_END); // seek to end of file
@@ -172,6 +172,14 @@ int lookup(char* filename)
 	
 
 	fscanf(input_file, "%s %i\n", hashAlgoName, &hashLen);
+
+	if (strlen(hashAlgoName) == 0 || hashLen == 0)
+	{
+		printf("Fatal Error: incorrect header ('%s %i') in file '%s'\nAborting\n", hashAlgoName, hashLen, filename);
+		return 1;
+	}
+
+
 	hash = malloc(hashLen+1); // set a buffer of the correct size
 
 
