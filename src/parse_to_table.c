@@ -242,7 +242,7 @@ int lookup(char* filename)
 
 	fprintf(stderr, "STORED %i nodes\n", i);
 
-	//prompt(table, hashLen); // try to lookup the given hashes
+	prompt(table, hashLen); // try to lookup the given hashes
 
 	fprintf(stderr, "Freeing table, please wait\n");
 

@@ -6,6 +6,7 @@ Get plain text password from stored hashes
 To execute this program, it is recommended to use at least 2Gb RAM.  
 All the tests have been made on a Debian system, as so, it is <b><em>higly</em></b> recommended to use a Debian system or a Linux system at the very least to compile and execute this program. There are NO garanties that this will work on any other platform.  
 For the compilation, you will need `make`, `gcc` and `openssl=3.0`.
+In case you want to use Docker, you will need to install it too.  
 
 ## 1 - Usage
 
@@ -42,6 +43,7 @@ To transform any password list into a correspondance table hash-list, simply typ
 Change <password-file> and <correspondance-table-file> to the paths of the file you want to use.  
 By default, the selected hash algorithm will be SHA256 but you can change use any algorithm available in the openSSL library by adding the argument `-a <hash-algo-name>`  
 
+> For your convenience, you can find a small sample of passwords to test the program on in `data/sample.txt`.
 
 ### 4 - Finding a given password (lookup)
 
@@ -52,7 +54,7 @@ Change <hashes-to-match-file> and <correspondance-table-file> to the paths of th
 
 For every line in the file containing hashes to match, the program will try to find if there is a corresponding clear password.  
 The program will print a line with the hash and its corresponding clear password if it is found in the table.  
-Else, nothing is displayed.
+Else, nothing is displayed.  
 
 
 ### 5 - How does it work ?

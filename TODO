@@ -1,8 +1,0 @@
-TODO 
-
-
-DONE
-
--add some code to transform text to upper case (else the comparison might fail)
--add a way to store the hash algorithm used in the hashing phase
--add a way to store the length of a hashed password in bytes (at the beginning of the hashes.txt file, preferably)
