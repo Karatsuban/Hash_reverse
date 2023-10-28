@@ -56,6 +56,11 @@ For every line in the file containing hashes to match, the program will try to f
 The program will print a line with the hash and its corresponding clear password if it is found in the table.  
 Else, nothing is displayed.  
 
+There is an additional option called `-gp` (for good password) that allow you to check if one of your passwords has not been leaked and is present in the database you used.  
+For security reasons (i.e. avoid plain text password ending up in the bash history), this option <b>must</b> be used as follows:  
+`$ cat - | ./MAIN.exe -L -i <correspondance-table-file> -gp`  
+When the database is loaded in memory, then you will be able to enter one password at the time. You will be informed whether the hash of the password has been found in the correspondance table file.  
+To exit, simply do a `Ctl-D` and the program will stop.  
 
 ### 5 - How does it work ?
 
