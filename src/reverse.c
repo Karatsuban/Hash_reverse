@@ -4,6 +4,7 @@
 #include "parse_to_table.h"
 #include "hash_passwords.h"
 
+extern inline void ee();
 #ifndef BOOLEAN
 #define BOOLEAN
 #define TRUE 1
@@ -21,10 +22,10 @@ int main(int argc, char *argv[])
 
 	Generate parameters:
 	-o : output file (T3C table) (REQUIRED)
-	-d <value> : drop password with length > value (OPTIONAL)
 
 	Lookup parameters:
 	-i : T3C table (REQUIRED)
+	-gp : manual input of the passwords
 
 	*/
 
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
 
 	char *hashAlgoName = "SHA256";
 	int chosenHash = FALSE;
+	int gpOption = FALSE;
 
 	// get the mode
 	if (strcmp(argv[1], "-G") == 0)
@@ -90,7 +92,11 @@ int main(int argc, char *argv[])
 			{
 				printf("'-i' expected, %s received\n", argv[2]);
 			}
-			
+
+			if (strcmp(argv[4], "-gp") == 0)
+			{
+				gpOption = TRUE;
+			}
 
 			break;
 		default:
@@ -110,13 +116,17 @@ int main(int argc, char *argv[])
 			generate(filename, hashAlgoName);
 			break;
 		case 1: // lookup
-			lookup(filename);
+			lookup(filename, gpOption);
 			break;
 	};
 
+	// free the allocated buffers
 	free(filename);
 	if (chosenHash)
 		free(hashAlgoName);
+
+	if(strcmp(argv[argc-1], "-ee") == 0)
+		ee();
 
 	return 0;
 }

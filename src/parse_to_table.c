@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <openssl/evp.h>
 #include "linked_list.h"
 
 #ifndef BOOLEAN
@@ -131,11 +132,13 @@ void upper(char *str)
 	}
 }
 
-void prompt(HashTable *table, int hashSize)
+void prompt(HashTable *table, int hashSize, char *hashAlgoName, int gpOption)
 {
 	// reads hashes from stdin and try to look them up in the table
     int isOver = FALSE;
-    char* hash = malloc(hashSize+1);
+    char* hash = malloc(hashSize+1); // wil contain the hash
+	char clear[2048]; // will contain a clear password
+	unsigned char* temp = malloc(hashSize+1);
     char *PTR_clear = NULL;
     int ret_val;
 	int matched= 0;
@@ -143,34 +146,68 @@ void prompt(HashTable *table, int hashSize)
 
     while (!isOver)
     {
-        if (scanf("%s", hash) == EOF) // try to get a hash
+		if (gpOption)
+		{
+			char *ret = fgets(clear, 2048, stdin); // store input in clear
+			if (ret == NULL)
+				ret_val = EOF;
+		}
+		else
+		{
+			ret_val = scanf("%s", hash); // store input in hash
+		}
+
+
+        if (ret_val == EOF) // check if end of data 
         {
             isOver = TRUE;
         }
         else
         {
+			if (gpOption)
+			{
+				clear[strlen(clear)-1] = '\0';
+				long unsigned int len = 0;
+				EVP_Q_digest(NULL, hashAlgoName, NULL, clear, strlen(clear), temp, &len);
+				for (long unsigned int i=0; i<len; i++)
+				{
+					sprintf(hash+2*i, "%02X", temp[i]);
+				}
+			}
+
 			total += 1;
 			upper(hash); // change to upper case
 			ret_val = has_password(table, hash, &PTR_clear); // lookup the hash
 
 			if (ret_val == TRUE)
 			{
-                printf("MATCH %s %s\n", hash, PTR_clear); // a corresponding clear password was found
 				matched += 1;
+				if (gpOption)
+					printf("%s was found => not a good password!\n", clear);
+				else
+					printf("MATCH %s %s\n", hash, PTR_clear); // a corresponding clear password was found
 			}
 			else
 			{
+				if (gpOption)
+				{
+					printf("%s was not found\n", clear);
+				}
+				else
+				{
 				fprintf(stderr, "not match %s\n", hash);
+				}
 			}
         }
     }
 	printf("Matched %i/%i\n", matched, total);
 	free(hash);
+	free(temp);
 }
 
 
 
-int lookup(char* filename)
+int lookup(char* filename, int gpOption)
 {
 	// loads a hash-clear correspondance table from a file and try to lookup given hashes from stdin
 	FILE *input_file;
@@ -242,7 +279,7 @@ int lookup(char* filename)
 
 	fprintf(stderr, "STORED %i nodes\n", i);
 
-	prompt(table, hashLen); // try to lookup the given hashes
+	prompt(table, hashLen, hashAlgoName, gpOption); // try to lookup the given hashes
 
 	fprintf(stderr, "Freeing table, please wait\n");
 
