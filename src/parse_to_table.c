@@ -173,6 +173,7 @@ void prompt(HashTable *table, int hashSize, char *hashAlgoName, int gpOption)
 				{
 					sprintf(hash+2*i, "%02X", temp[i]);
 				}
+				printf("hash is %s\n", hash);
 			}
 
 			total += 1;
@@ -192,10 +193,6 @@ void prompt(HashTable *table, int hashSize, char *hashAlgoName, int gpOption)
 				if (gpOption)
 				{
 					printf("%s was not found\n", clear);
-				}
-				else
-				{
-				fprintf(stderr, "not match %s\n", hash);
 				}
 			}
         }
@@ -230,6 +227,7 @@ int lookup(char* filename, int gpOption)
 	
 	int check = fscanf(input_file, "%s %i\n", hashAlgoName, &hashLen); // read the file's first line
 
+
 	if (strlen(hashAlgoName) == 0 || hashLen == 0 || check != 2)
 	{
 		// checkin the file's header
@@ -237,9 +235,7 @@ int lookup(char* filename, int gpOption)
 		return 1;
 	}
 
-
 	hash = malloc(hashLen+1); // set a buffer of the correct size for the hashes
-
 
 	int ht_size = size/((hashLen+10)*50); // set the table size
 	// (hashLen+10) is a rough average of the number of characters per line
