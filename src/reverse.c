@@ -93,9 +93,12 @@ int main(int argc, char *argv[])
 				printf("'-i' expected, %s received\n", argv[2]);
 			}
 
-			if (strcmp(argv[4], "-gp") == 0)
+			if (argc >= 5)
 			{
-				gpOption = TRUE;
+				if (strcmp(argv[4], "-gp") == 0)
+				{
+					gpOption = TRUE;
+				}
 			}
 
 			break;
